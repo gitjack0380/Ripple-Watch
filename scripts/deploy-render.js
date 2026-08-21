@@ -49,19 +49,10 @@ function req(method, path, body) {
   });
 }
 
-async function getWorkspaceId() {
-  const res = await req('GET', '/workspaces');
-  const list = res.data || res || [];
-  if (!list.length) throw new Error('未找到任何 workspace，请确认 RENDER_API_KEY 有效');
-  console.log('✓ workspace:', list[0].name || list[0].id, '(' + list[0].id + ')');
-  return list[0].id;
-}
-
-async function createService(ownerId) {
+async function createService() {
   const body = {
     type: 'web_service',
     name: SERVICE_NAME,
-    ownerId,
     repo: REPO,
     branch: BRANCH,
     autoDeploy: 'yes',
@@ -72,6 +63,7 @@ async function createService(ownerId) {
       { key: 'LLM_API_KEY', value: LLM_API_KEY }
     ],
     serviceDetails: {
+      runtime: 'node',
       buildCommand: 'npm install',
       startCommand: 'npm start',
       plan: 'starter',
@@ -80,7 +72,8 @@ async function createService(ownerId) {
       disk: { name: 'ripple-data', mountPath: '/var/data', sizeGB: 1 }
     }
   };
-  console.log('→ 创建 web_service:', SERVICE_NAME, '@', REPO, '#' + BRANCH);
+  if (process.env.OWNER_ID) body.ownerId = process.env.OWNER_ID;
+  console.log('→ 创建 web_service:', SERVICE_NAME, '@', REPO, '#' + BRANCH, process.env.OWNER_ID ? '(ownerId=' + process.env.OWNER_ID + ')' : '(默认 workspace)');
   const res = await req('POST', '/services', body);
   const svc = res.service || res;
   console.log('✓ 已创建服务 id=' + svc.id + ' slug=' + svc.slug);
@@ -116,8 +109,7 @@ async function waitForLive(serviceId, slug) {
 
 (async () => {
   try {
-    const ownerId = await getWorkspaceId();
-    const svc = await createService(ownerId);
+    const svc = await createService();
     const url = await waitForLive(svc.id, svc.slug);
     console.log('\n========================================');
     console.log('🚀 正式上线地址：');

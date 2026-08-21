@@ -83,9 +83,11 @@ function requireAdmin(req, res, next) {
 // 后台页面：超级管理员登录 或 ?key= 密钥
 function requireAdminOrKey(req, res, next) {
   if (req.user && req.user.role === 'admin') return next();
-  const key = (req.query.key || '') ;
-  if (key && key === config.adminKey) return next();
-  return res.status(403).send('管理后台需要管理员登录 或 ?key= 正确密钥');
+  // 注：仓库公开部署时 config.adminKey 留空，key 机制自动失效，仅管理员登录可进后台
+  const key = (req.query.key || '');
+  const keyOk = !!config.adminKey && key === config.adminKey;
+  if (keyOk) return next();
+  return res.status(403).send('管理后台需要管理员登录');
 }
 
 /* ---------------- 页面路由 ---------------- */

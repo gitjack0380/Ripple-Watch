@@ -33,5 +33,5 @@
     "provider": "",
     "slots": { "feed": "", "sidebar": "", "banner": "" }
   },
-  "adminKey": "change-me-admin-key"
+  "adminKey": ""
 }
