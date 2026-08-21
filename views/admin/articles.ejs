@@ -1,0 +1,73 @@
+<%- include('../partials/head', {title:'内容发布 · 管理后台'}) %>
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', {page:'articles'}) %>
+  <main class="admin-main">
+    <div class="container">
+      <h2 style="margin:0 0 12px">内容发布</h2>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;max-width:780px">
+        <h3 style="margin:0 0 12px">发布新解读</h3>
+        <form id="art-form" style="display:flex;flex-direction:column;gap:14px">
+          <div><label>标题 *</label><input name="title" required style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"></div>
+          <div><label>栏目 *</label>
+            <select name="category" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px">
+              <% cats.forEach(function(c){ %><option value="<%= c %>"><%= c %></option><% }); %>
+            </select>
+          </div>
+          <div><label>导语（lead）</label><input name="lead" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"></div>
+          <div><label>免费段落（HTML 可）</label><textarea name="freeHtml" rows="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"></textarea></div>
+          <div><label>会员专享段落（HTML 可）</label><textarea name="premiumHtml" rows="4" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"></textarea></div>
+          <div><label>影响标签 JSON（如 [{"t":"red","l":"物价"}]）</label><input name="impacts" value='[{"t":"amber","l":"影响"}]' style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"></div>
+          <label style="font-size:14px"><input type="checkbox" name="isPremium" value="1"> 设为会员专享（含付费墙）</label>
+          <button class="btn btn-primary" type="submit">发布</button>
+          <p id="art-result" style="font-size:13px;color:var(--down)"></p>
+        </form>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;margin-top:18px">
+        <h3 style="margin:0 0 10px">已发布内容（<%= articles.length %> 篇）</h3>
+        <div style="overflow:auto">
+          <table class="admin-table">
+            <thead><tr><th>日期</th><th>标题</th><th>栏目</th><th>会员专享</th><th></th></tr></thead>
+            <tbody id="art-tbody">
+              <% articles.forEach(function(a){ %>
+                <tr data-id="<%= a.id %>">
+                  <td><%= a.date %></td>
+                  <td><%= a.title %></td>
+                  <td><%= a.category %></td>
+                  <td><%= a.isPremium?'是':'否' %></td>
+                  <td><button class="row-del" data-act="del" data-id="<%= a.id %>">删除</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+document.getElementById('art-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  var f=e.target, fd=new FormData(f);
+  var body={title:fd.get('title'),category:fd.get('category'),lead:fd.get('lead'),
+    freeHtml:fd.get('freeHtml'),premiumHtml:fd.get('premiumHtml'),
+    impacts:fd.get('impacts'),isPremium:fd.get('isPremium')?true:false};
+  fetch('/api/admin/article',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(function(d){
+      document.getElementById('art-result').textContent=d.ok?'✅ 已发布：'+d.article.title:'❌ '+d.msg;
+      if(d.ok) location.reload();
+    }).catch(function(){document.getElementById('art-result').textContent='❌ 网络错误';});
+});
+document.getElementById('art-tbody').addEventListener('click',function(e){
+  if(e.target.dataset.act==='del'){
+    if(!confirm('确定删除这篇文章？')) return;
+    fetch('/api/admin/article/'+encodeURIComponent(e.target.dataset.id),{method:'DELETE'})
+      .then(r=>r.json()).then(function(d){ if(d.ok) location.reload(); else alert(d.msg); });
+  }
+});
+</script>
+<%- include('../partials/footer') %>

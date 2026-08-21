@@ -1,0 +1,55 @@
+<%- include('partials/head', {title: art.title}) %>
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="note">🔒 付费墙由<strong>服务端强制</strong>：非会员不会收到会员专享正文。会员权益由第三方平台（小鹅通/有赞）收款与发放。</div>
+
+  <article class="article">
+    <div class="crumbs"><a href="/">首页</a> / <a href="/category/<%= art.category %>"><%= art.category %></a> / <%= art.title.slice(0,12) %>…</div>
+    <h1 class="serif"><%= art.title %></h1>
+    <div class="byline">
+      <span><%= art.author %></span><span><%= art.date %></span><span>阅读 <%= (art.views||0).toLocaleString() %></span>
+      <% if(art.isPremium){ %><span class="tag member">会员专享</span><% } %>
+    </div>
+
+    <div class="lead"><%= art.lead %></div>
+
+    <%- art.freeHtml %>
+
+    <% if(unlocked){ %>
+      <div class="unlock-box" style="border-color:#BBF7D0;background:#F0FDF4">
+        <h3 style="color:var(--down)">✅ 已解锁会员专享内容</h3>
+        <p>感谢支持，以下为完整深度解读。</p>
+      </div>
+      <%- art.premiumHtml %>
+    <% } else { %>
+      <div class="paywall">
+        <div class="overlay" style="position:relative;inset:auto;background:linear-gradient(180deg,#F8FAFC,#EFF6FF);padding:30px;border:1px dashed var(--brand);border-radius:14px">
+          <h3>🔒 会员专享深度解读</h3>
+          <% if(reason==='login'){ %>
+            <p>登录后即可免费阅读每日 <%= freeDailyLimit %> 篇会员专享；或开通会员解锁全部。</p>
+            <a href="/login?next=/article/<%= art.id %>" class="btn btn-primary">登录 / 注册</a>
+          <% } else if(reason==='dailyLimit'){ %>
+            <p>你今日免费额度已用完（<%= dailyFreeUsed %>/<%= freeDailyLimit %>）。开通会员即可无限制阅读全部深度解读。</p>
+            <a href="/membership" class="btn btn-primary">开通会员 ¥19/月</a>
+          <% } else { %>
+            <p>剩余内容为会员专享，包含逐行业影响清单与应对操作表。开通会员即可解锁全文。</p>
+            <a href="/membership" class="btn btn-primary">开通会员 ¥19/月</a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="unlock-box">
+      <h3>想看懂每一件大事对你的真实影响？</h3>
+      <p>会员每月 ¥19，解锁全部深度解读、影响指数档案与无广告阅读。</p>
+      <a href="/membership" class="btn btn-primary">开通会员 ¥19/月</a>
+    </div>
+
+    <div style="max-width:760px;margin:30px auto">
+      <%- adHtml('banner') %>
+    </div>
+  </article>
+</div>
+
+<%- include('partials/footer') %>

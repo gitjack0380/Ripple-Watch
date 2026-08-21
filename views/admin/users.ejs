@@ -1,0 +1,60 @@
+<%- include('../partials/head', {title:'用户 & 登录 · 管理后台'}) %>
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', {page:'users'}) %>
+  <main class="admin-main">
+    <div class="container">
+      <h2 style="margin:0 0 12px">用户 & 登录日志</h2>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff">
+        <h3 style="margin:0 0 10px">注册用户（<%= users.length %>）</h3>
+        <div style="overflow:auto">
+          <table class="admin-table">
+            <thead><tr><th>账号</th><th>角色</th><th>会员</th><th>套餐</th><th>到期</th><th>注册时间</th></tr></thead>
+            <tbody>
+              <% users.forEach(function(u){ %>
+                <tr>
+                  <td><%= u.account %></td>
+                  <td><%= u.role %></td>
+                  <td><%= u.isMember?'是':'否' %></td>
+                  <td><%= u.plan||'-' %></td>
+                  <td><%= (u.memberUntil||'').replace('T',' ').slice(0,10) %></td>
+                  <td><%= (u.createdAt||'').replace('T',' ').slice(0,10) %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff;margin-top:18px">
+        <h3 style="margin:0 0 10px">登录日志（最近 30 条）</h3>
+        <div style="overflow:auto">
+          <table class="admin-table">
+            <thead><tr><th>时间</th><th>账号</th><th>IP</th></tr></thead>
+            <tbody id="login-tbody">
+              <tr><td colspan="3" style="color:var(--muted)">加载中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+async function loadLogs(){
+  try{
+    var d=await (await fetch('/api/admin/analytics')).json();
+    var tb=document.getElementById('login-tbody');
+    var logs=(d.stats&&d.stats.recentLogins)||[];
+    if(!logs.length){ tb.innerHTML='<tr><td colspan="3" style="color:var(--muted)">暂无登录记录</td></tr>'; return; }
+    tb.innerHTML=logs.map(function(l){
+      return '<tr><td>'+((l.time||'').replace('T',' ').slice(0,19))+'</td><td>'+esc(l.account)+'</td><td>'+esc(l.ip)+'</td></tr>';
+    }).join('');
+  }catch(e){ document.getElementById('login-tbody').innerHTML='<tr><td colspan="3" style="color:var(--down)">加载失败</td></tr>'; }
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+loadLogs();
+</script>
+<%- include('../partials/footer') %>

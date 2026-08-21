@@ -1,0 +1,29 @@
+# Render 部署配置（境外节点，免备案）
+# 文档：https://render.com/docs/deploys  https://render.com/docs/disks
+services:
+  - type: web
+    name: ripple-watch
+    runtime: node
+    plan: starter          # free 档不支持持久盘且会休眠；数据会丢。正式运营请用 starter（约 $7/月，常驻+磁盘）
+    region: singapore      # 离国内最近、免 ICP 备案的境外区
+    branch: master
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    # 持久盘：用户/会员/文章/统计都存在这里，重启或重新部署不丢失
+    disks:
+      - name: ripple-data
+        mountPath: /var/data
+        sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render 自动注入 PORT；此处声明便于本地/其他平台兼容
+      - key: PORT
+        value: "10000"
+      # 数据目录指向持久盘
+      - key: DATA_DIR
+        value: /var/data
+      # AI 模型 Key：请在 Render 控制台手动填写（sync:false 表示不从 yaml 同步，仅面板可设）
+      - key: LLM_API_KEY
+        sync: false

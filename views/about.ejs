@@ -1,0 +1,32 @@
+<%- include('partials/head', {title:'关于我们'}) %>
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="note">🌍 全球大事的普通人视角。会员订阅由第三方平台（小鹅通/有赞）收款，广告位可接入联盟。</div>
+  <div class="prose" style="margin-top:30px">
+    <h1 class="serif" style="font-size:30px">为什么做 <%= siteName %></h1>
+    <p>世界每天发生成千上万件事，但绝大多数新闻止于"发生了什么"。普通人真正想知道的是：<strong>这件事和我有什么关系？我的钱、工作、生活会怎样？</strong></p>
+
+    <div class="stat-row">
+      <div class="stat"><div class="num">5</div><div class="lab">覆盖赛道：时政/经济/科技/气候/生活</div></div>
+      <div class="stat"><div class="num"><%= articleCount %></div><div class="lab">已发布解读</div></div>
+      <div class="stat"><div class="num"><%= cfg.freeDailyLimit %></div><div class="lab">非会员每日免费篇数</div></div>
+    </div>
+
+    <h2>我们做什么</h2>
+    <p>把全球重大发展翻译成"对你有影响"的清单：影响方向（涨/跌/省）、影响程度、可操作动作。免费用户每日可读 <%= cfg.freeDailyLimit %> 篇，会员解锁全部逐行业深度解读与影响指数档案。</p>
+
+    <h2>商业模式</h2>
+    <p>① <strong>会员订阅</strong>：月卡 ¥<%= cfg.plans.month.price %> / 年卡 ¥<%= cfg.plans.year.price %>，权益见会员页。② <strong>广告</strong>：信息流原生广告、详情页横幅、侧栏，均明确标注"广告"，可接入 AdSense / 百度联盟 / 穿山甲，或承接品牌原生合作。③ 未来扩展：企业内参、线下影响沙龙。</p>
+
+    <h2>内容准则</h2>
+    <p>只解读可验证的全球发展；影响判断标注依据与不确定性；不做煽动、不碰医疗/金融诱导。所有广告与赞助内容独立标注。</p>
+
+    <h2>联系与合作</h2>
+    <p>广告主与机构合作请通过下方入口。</p>
+    <button class="btn btn-primary" data-action="ad">广告 / 机构合作咨询</button>
+    <a href="/" class="btn btn-ghost" style="margin-left:10px">返回首页</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

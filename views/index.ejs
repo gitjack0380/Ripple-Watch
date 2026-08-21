@@ -1,0 +1,65 @@
+<%- include('partials/head', {title:'首页'}) %>
+<% var active='home'; %>
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="note">🔧 这是<strong>完整可运行产品</strong>（测试模式：支付自动模拟成功，不真实扣费）。所有会员/广告功能均已接入后端。</div>
+
+  <% if(hero){ %>
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="kicker">◆ 今日头条 · <%= hero.category %></span>
+      <h1><%= hero.title %></h1>
+      <p><%= hero.lead %></p>
+      <span class="impact-pill">🔴 对你影响：<% (hero.impacts||[]).slice(0,3).forEach(function(im){ %><%= im.l %> · <% }); %></span>
+      <a href="/article/<%= hero.id %>" class="btn btn-primary" style="width:fit-content;margin-top:6px">阅读全文 →</a>
+    </div>
+  </section>
+  <% } %>
+
+  <div class="grid">
+    <main>
+      <div class="section-title"><h2>最新大事 · 普通人视角</h2><span class="line"></span><a href="/category">查看全部 →</a></div>
+      <div class="feed">
+        <% feed.forEach(function(a){ %>
+        <article class="card">
+          <div class="meta"><span class="tag cat"><%= a.category %></span><span><%= a.date %></span><span>· 阅读 <%= (a.views||0).toLocaleString() %></span><% if(a.isPremium){ %><span class="tag member">会员专享</span><% } %></div>
+          <h3><%= a.title %><% if(a.isPremium){ %><span class="lock">🔒</span><% } %></h3>
+          <p><%- a.freeHtml.replace(/<[^>]+>/g,'').slice(0,70) %>…</p>
+          <div class="impacts">
+            <% (a.impacts||[]).forEach(function(im){ %><span class="impact <%= im.t %>"><%= im.l %></span><% }); %>
+          </div>
+          <a href="/article/<%= a.id %>" class="read">阅读全文 →</a>
+        </article>
+        <% }); %>
+      </div>
+      <%- adHtml('feed') %>
+    </main>
+
+    <aside class="sidebar">
+      <div class="widget">
+        <h4>📊 今日影响指数</h4>
+        <div class="index-bar">
+          <div class="index-row"><span class="label">物价</span><span class="bar"><i style="width:78%;background:var(--up)"></i></span><span>高</span></div>
+          <div class="index-row"><span class="label">就业</span><span class="bar"><i style="width:54%;background:var(--impact)"></i></span><span>中</span></div>
+          <div class="index-row"><span class="label">投资</span><span class="bar"><i style="width:66%;background:var(--brand)"></i></span><span>偏高</span></div>
+          <div class="index-row"><span class="label">出行</span><span class="bar"><i style="width:32%;background:var(--down)"></i></span><span>低</span></div>
+        </div>
+      </div>
+      <div class="widget">
+        <h4>🔥 热门解读</h4>
+        <div class="mini-list">
+          <% feed.slice(0,4).forEach(function(a,i){ %><div class="mini-item"><span class="n"><%= i+1 %></span><a href="/article/<%= a.id %>"><%= a.title.slice(0,18) %>…</a></div><% }); %>
+        </div>
+      </div>
+      <%- adHtml('sidebar') %>
+      <div class="widget" style="background:linear-gradient(135deg,#0EA5E9,#6366F1);color:#fff;border:0">
+        <h4 style="color:#fff">⚡ 解锁深度影响报告</h4>
+        <p style="font-size:13px;opacity:.9;margin-bottom:14px">会员可看每件大事的"逐行业影响清单 + 应对操作表"。</p>
+        <a href="/membership" class="btn btn-primary btn-block">开通会员 ¥19/月</a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

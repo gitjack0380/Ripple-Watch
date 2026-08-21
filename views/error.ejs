@@ -1,0 +1,8 @@
+<%- include('partials/head', {title:'出错了'}) %>
+<%- include('partials/header') %>
+<div class="container" style="text-align:center;padding:80px 0">
+  <h1 class="serif" style="font-size:40px">😢</h1>
+  <p style="color:var(--muted);margin-top:10px"><%= msg || '页面不存在' %></p>
+  <a href="/" class="btn btn-primary" style="margin-top:20px">返回首页</a>
+</div>
+<%- include('partials/footer') %>

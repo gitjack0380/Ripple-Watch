@@ -1,0 +1,46 @@
+{
+  "siteName": "涟漪观察",
+  "siteSlogan": "世界发生的每一件大事，都与你有关。",
+  "port": 3000,
+  "siteUrl": "https://your-domain.com",
+  "testMode": false,
+  "freeDailyLimit": 3,
+
+  "payment": {
+    "_说明": "mode=external 走第三方付费平台（小鹅通/有赞），免商户号；mode=wechat 走微信支付，需营业执照+商户号",
+    "mode": "external",
+    "external": {
+      "provider": "xiaoe",
+      "shopUrl": "https://appxx.xiaoe-tech.com/...(你的小鹅通商品/店铺页)",
+      "returnPath": "/member/return",
+      "_demoActivate": "仅本地验收用：true 时回跳页可直接为登录用户开通会员。上线务必设为 false，并接小鹅通/有赞 API 做真实订单校验",
+      "demoActivate": false
+    }
+  },
+
+  "plans": {
+    "month": { "id": "month", "name": "会员月卡", "price": 19, "days": 31, "desc": "深度解读自由看" },
+    "year": { "id": "year", "name": "会员年卡", "price": 199, "days": 366, "desc": "折合 ¥16.6/月" }
+  },
+
+  "wechatPay": {
+    "appId": "wx你的appid",
+    "mchId": "微信支付商户号",
+    "apiKey": "APIv3密钥",
+    "serialNo": "证书序列号",
+    "privateKeyPath": "./certs/apiclient_key.pem",
+    "notifyUrl": "https://your-domain.com/api/wechat/notify"
+  },
+
+  "ads": {
+    "enabled": false,
+    "provider": "adsense",
+    "slots": {
+      "feed": "<!-- AdSense/百度联盟/穿山甲 代码 -->",
+      "sidebar": "<!-- 侧栏广告代码 -->",
+      "banner": "<!-- 详情页横幅代码 -->"
+    }
+  },
+
+  "adminKey": "请改成随机长字符串"
+}

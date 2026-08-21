@@ -1,0 +1,252 @@
+<%- include('../partials/head', {title:'自动化 · 管理后台'}) %>
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', {page:'automation'}) %>
+  <main class="admin-main">
+    <div class="container">
+      <h2 style="margin:0 0 4px">自动化设置</h2>
+      <p class="hint" style="color:var(--muted);margin:0 0 12px">每天整点抓取时事 → AI 生成洞察 → 自动发布。当前引擎：<b><%= (settings.llm.providers.find(p=>p.id===settings.llm.activeProviderId)||{}).name||'—' %></b></p>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>① 调度时间</h3>
+        <div class="row">
+          <label class="chk"><input type="checkbox" id="auto-enabled"> 启用自动化</label>
+          <span>每天</span>
+          <input type="number" id="auto-start" min="0" max="23" style="width:60px"> 点 至
+          <input type="number" id="auto-end" min="0" max="23"  style="width:60px"> 点，
+          每 <input type="number" id=".auto-minute" min="0" max="59" style="width:60px"> 分触发（默认整点=0）
+        </div>
+        <div class="row">
+          <span>每次最多发布</span><input type="number" id="auto-max" min="1" max="50" style="width:60px"><span>篇；</span>
+          <label class="chk"><input type="checkbox" id="auto-premium"> 生成的文章设为会员专享</label>
+        </div>
+        <div class="row">
+          <span>栏目默认：</span>
+          <select id="auto-cat">
+            <option value="">自动（按 RSS 源分类）</option>
+            <option>时政</option><option>经济</option><option>科技</option><option>气候</option><option>生活</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>② 洞察提示词（可自定义）</h3>
+        <p class="hint">此提示词决定 AI 如何把时事改写成"对普通人的原创观点洞察"。变量会由系统自动注入。</p>
+        <textarea id="auto-prompt" rows="12" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-family:monospace;font-size:13px"></textarea>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>③ AI 模型提供商 <span class="hint">（可任意添加 OpenAI 兼容厂商）</span></h3>
+        <div class="prov-list" id="prov-list"></div>
+        <button type="button" class="btn btn-primary" id="add-provider">+ 添加提供商</button>
+      </div>
+
+      <div class="modal-mask" id="prov-modal" style="display:none">
+        <div class="modal">
+          <h3 style="margin:0 0 14px">添加模型提供商</h3>
+          <div class="form-grid">
+            <label>名称 *<input id="np-name" placeholder="如 通义千问 DashScope"></label>
+            <label>类型
+              <select id="np-type">
+                <option value="openai-compatible">openai-compatible</option>
+                <option value="mock">mock（演示）</option>
+              </select>
+            </label>
+            <label class="full">Base URL<input id="np-base" placeholder="https://.../v1"></label>
+            <label class="full">API Key<input id="np-key" type="password" placeholder="sk-..." autocomplete="new-password"></label>
+            <label class="full">模型<input id="np-model" placeholder="qwen-plus"></label>
+            <label class="chk"><input type="checkbox" id="np-enabled" checked> 启用</label>
+            <label class="chk"><input type="checkbox" id="np-default"> 设为默认提供商</label>
+          </div>
+          <div class="modal-actions">
+            <span id="np-msg" style="font-size:13px;margin-right:auto"></span>
+            <button type="button" class="btn btn-ghost" id="np-cancel">取消</button>
+            <button type="button" class="btn btn-primary" id="np-save">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>④ 时事来源（RSS，免 Key）</h3>
+        <div style="overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin:10px 0">
+          <table class="admin-table" id="feed-table">
+            <thead><tr><th style="width:140px">名称</th><th style="width:560px">RSS 地址</th><th style="width:110px">栏目</th><th style="width:70px"></th></tr></thead>
+            <tbody id="feed-tbody"></tbody>
+          </table>
+        </div>
+        <label class="chk" style="margin:8px 0"><input type="checkbox" id="rss-live"> 使用真实 RSS（取消勾选=演示模式，用内置示例）</label>
+        <button type="button" class="btn btn-ghost" id="add-feed">+ 添加 RSS 源</button>
+      </div>
+
+      <div class="row" style="margin:16px 0">
+        <button type="button" class="btn btn-primary" id="save-settings">保存设置</button>
+        <button type="button" class="btn btn-ghost" id="run-once">⚡ 立即运行一次</button>
+        <button type="button" class="btn btn-ghost" id="refresh-log">刷新日志</button>
+        <span id="settings-msg" style="font-size:13px"></span>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>运行日志</h3>
+        <pre id="auto-log" style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:12px;max-height:260px;overflow:auto"></pre>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+  .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+  .prov-list{display:flex;flex-direction:column;gap:12px;margin:10px 0}
+  .prov-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff}
+  .prov-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px dashed var(--line);padding-bottom:10px;margin-bottom:10px}
+  .prov-title{display:flex;align-items:center;gap:8px;font-size:15px}
+  .prov-ops{display:flex;align-items:center;gap:14px}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line);font-weight:600}
+  .badge.def{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .prov-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .prov-field{display:flex;flex-direction:column;gap:4px}
+  .pf-label{font-size:12px;color:var(--muted)}
+  .pf-input input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;box-sizing:border-box;font-size:13px}
+  .pf-input input[type="password"]{font-family:monospace}
+  @media (max-width:720px){ .prov-body{grid-template-columns:1fr} }
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:520px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .form-grid label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--ink)}
+  .form-grid label.full{grid-column:1 / -1}
+  .form-grid input,.form-grid select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+  .modal-actions{display:flex;align-items:center;gap:10px;margin-top:18px}
+  .row-del{color:var(--down);background:#fff0f0;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:13px;padding:6px 10px;white-space:nowrap}
+  .row-del:hover{background:#ffe0e0}
+  .row-del:disabled{color:var(--muted);background:#f5f5f5;cursor:not-allowed}
+</style>
+
+<script>
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const CATS=['时政','经济','科技','气候','生活'];
+let SETTINGS=null;
+async function loadSettings(){
+  try{ var d=await (await fetch('/api/admin/settings')).json(); SETTINGS=d.settings; renderAuto(); refreshLog(); }catch(e){ console.error(e); }
+}
+function renderAuto(){
+  var s=SETTINGS;
+  document.getElementById('auto-enabled').checked=!!s.automation.enabled;
+  document.getElementById('auto-start').value=s.automation.startHour;
+  document.getElementById('auto-end').value=s.automation.endHour;
+  document.getElementById('auto-minute').value=s.automation.minute;
+  document.getElementById('auto-max').value=s.automation.maxPerRun;
+  document.getElementById('auto-premium').checked=!!s.automation.defaultPremium;
+  document.getElementById('auto-cat').value=s.automation.defaultCategory||'';
+  document.getElementById('auto-prompt').value=s.automation.prompt||'';
+  document.getElementById('rss-live').checked=(s.rss.mode==='live');
+  renderProviders(s.llm.providers||[], s.llm.activeProviderId);
+  renderFeeds(s.rss.feeds||[]);
+}
+function renderProviders(list,activeId){
+  var box=document.getElementById('prov-list'); box.innerHTML='';
+  list.forEach(function(p){ box.appendChild(provCard(p,activeId)); });
+}
+function provCard(p,activeId){
+  var div=document.createElement('div'); div.className='prov-card'; div.dataset.id=p.id;
+  div.dataset.name=p.name; div.dataset.type=p.type; div.dataset.haskey=p.apiKey?'1':'0';
+  var badge = p.type==='mock' ? '演示' : 'OpenAI 兼容';
+  div.innerHTML='<div class="prov-head"><div class="prov-title"><strong>'+esc(p.name)+'</strong> <span class="badge">'+badge+'</span>'+(p.id===activeId?' <span class="badge def">默认</span>':'')+'</div>'+
+    '<div class="prov-ops"><label class="chk"><input type="radio" name="activeProv" data-act="set-default" value="'+esc(p.id)+'"'+(p.id===activeId?' checked':'')+'> 默认</label>'+
+    '<label class="chk"><input type="checkbox" data-f="enabled"'+(p.enabled?' checked':'')+'> 启用</label>'+
+    '<button type="button" class="row-del" data-act="del-prov"'+(p.id==='mock'?' disabled title="演示模型不可删除"':'')+'>删除</button></div></div>'+
+    '<div class="prov-body">'+pf('Base URL','<input data-f="baseUrl" value="'+esc(p.baseUrl)+'" placeholder="https://.../v1" title="'+esc(p.baseUrl)+'">')+
+    pf('API Key','<input data-f="apiKey" type="password" placeholder="留空保持不变" title="安全字段">')+
+    pf('模型','<input data-f="model" value="'+esc(p.model)+'" title="'+esc(p.model)+'">')+'</div>';
+  return div;
+}
+function pf(label,input){ return '<div class="prov-field"><span class="pf-label">'+label+'</span><span class="pf-input">'+input+'</span></div>'; }
+function renderFeeds(list){
+  var tb=document.getElementById('feed-tbody'); tb.innerHTML='';
+  list.forEach(function(f){ tb.appendChild(feedRow(f)); });
+}
+function feedRow(f){
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td><input data-f="name" value="'+esc(f.name)+'"></td>'+
+    '<td><input data-f="url" value="'+esc(f.url)+'" title="'+esc(f.url)+'"></td>'+
+    '<td><select data-f="category">'+CATS.map(function(c){return '<option'+(c===f.category?' selected':'')+'>'+c+'</option>';}).join('')+'</select></td>'+
+    '<td><button type="button" class="row-del" data-act="del-feed">删除</button></td>';
+  return tr;
+}
+document.getElementById('feed-tbody').addEventListener('click',function(e){ if(e.target.dataset.act==='del-feed') e.target.closest('tr').remove(); });
+document.getElementById('add-feed').addEventListener('click',function(){ document.getElementById('feed-tbody').appendChild(feedRow({name:'新源',url:'',category:'时政'})); });
+
+function openProvModal(){
+  document.getElementById('np-msg').textContent='';
+  ['np-name','np-base','np-key','np-model'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('np-type').value='openai-compatible';
+  document.getElementById('np-enabled').checked=true;
+  document.getElementById('np-default').checked=false;
+  document.getElementById('prov-modal').style.display='flex';
+  document.getElementById('np-name').focus();
+}
+function closeProvModal(){ document.getElementById('prov-modal').style.display='none'; }
+document.getElementById('add-provider').addEventListener('click',openProvModal);
+document.getElementById('np-cancel').addEventListener('click',closeProvModal);
+document.getElementById('prov-modal').addEventListener('click',function(e){ if(e.target===this) closeProvModal(); });
+document.getElementById('np-save').addEventListener('click',async function(){
+  var name=document.getElementById('np-name').value.trim();
+  var msg=document.getElementById('np-msg');
+  if(!name){ msg.style.color='var(--down)'; msg.textContent='请填写名称'; return; }
+  var payload={ name:name, type:document.getElementById('np-type').value,
+    baseUrl:document.getElementById('np-base').value.trim(), apiKey:document.getElementById('np-key').value,
+    model:document.getElementById('np-model').value.trim(), enabled:document.getElementById('np-enabled').checked,
+    setDefault:document.getElementById('np-default').checked };
+  msg.textContent='保存中…'; msg.style.color='var(--muted)';
+  try{
+    var d=await (await fetch('/api/admin/provider',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})).json();
+    if(d.ok){ SETTINGS=d.settings; renderAuto(); closeProvModal(); flash('✅ 已添加提供商：'+name); }
+    else { msg.style.color='var(--down)'; msg.textContent='❌ '+d.msg; }
+  }catch(e){ msg.style.color='var(--down)'; msg.textContent='❌ 网络错误'; }
+});
+document.getElementById('prov-list').addEventListener('click',async function(e){
+  var act=e.target.dataset.act;
+  if(act==='del-prov'){
+    if(e.target.disabled) return;
+    var card=e.target.closest('.prov-card'); var id=card.dataset.id;
+    if(!confirm('确定删除该提供商「'+card.dataset.name+'」？')) return;
+    try{ var d=await (await fetch('/api/admin/provider/'+encodeURIComponent(id),{method:'DELETE'})).json(); if(d.ok){ SETTINGS=d.settings; renderAuto(); flash('🗑 已删除'); } else alert(d.msg); }catch(err){ alert('网络错误'); }
+  }
+});
+document.getElementById('prov-list').addEventListener('change',async function(e){
+  if(e.target.dataset.act==='set-default'){
+    var id=e.target.value;
+    try{ var d=await (await fetch('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({llm:{activeProviderId:id, providers:collectProviders()}})}).json()); if(d.ok){ SETTINGS=d.settings; renderAuto(); flash('✅ 已设为默认'); } else alert(d.msg); }catch(err){ alert('网络错误'); }
+  }
+});
+function flash(text){ var m=document.getElementById('settings-msg'); m.style.color='var(--up)'; m.textContent=text; clearTimeout(flash._t); flash._t=setTimeout(function(){ m.textContent=''; },2600); }
+function collectProviders(){
+  return Array.from(document.querySelectorAll('#prov-list .prov-card')).map(function(card){
+    var g=function(f){var el=card.querySelector('[data-f="'+f+'"]');return el?(el.type==='checkbox'?el.checked:el.value):'';};
+    var apiKey=g('apiKey');
+    if(apiKey==='' && card.dataset.haskey==='1') apiKey='***';
+    return {id:card.dataset.id,name:card.dataset.name,type:card.dataset.type,baseUrl:g('baseUrl'),apiKey:apiKey,model:g('model'),enabled:g('enabled')};
+  });
+}
+function collectFeeds(){
+  return Array.from(document.querySelectorAll('#feed-tbody tr')).map(function(tr){
+    var g=function(f){var el=tr.querySelector('[data-f="'+f+'"]');return el?el.value:'';};
+    return {name:g('name'),url:  g('url'),category:g('category')};
+  });
+}
+function activeProviderId(){ var el=document.querySelector('input[name="activeProv"]:checked'); return el?el.value:''; }
+document.getElementById('save-settings').addEventListener('click',async function(){
+  var payload={ automation:{ enabled:document.getElementById('auto-enabled').checked, startHour:Number(document.getElementById('auto-start').value), endHour:Number(document.getElementById('auto-end').value), minute:Number(document.getElementById('auto-minute').value), maxPerRun:Number(document.getElementById('auto-max').value), defaultPremium:document.getElementById('auto-premium').checked, defaultCategory:document.getElementById('auto-cat').value },
+    rss:{ mode:document.getElementById('rss-live').checked?'live':'mock', feeds:collectFeeds() },
+    llm:{ activeProviderId:activeProviderId(), providers:collectProviders() } };
+  var msg=document.getElementById('settings-msg'); msg.textContent='保存中…';
+  try{ var d=await (await fetch('/api/admin/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).json()); if(d.ok){ msg.style.color='var(--up)'; msg.textContent='✅ 已保存并重新排程'; SETTINGS=d.settings; renderAuto(); } else { msg.style.color='var(--down)'; msg.textContent='❌ '+d.msg; } }catch(e){ msg.style.color='var(--down)'; msg.textContent='❌ 网络错误'; }
+});
+document.getElementById('run-once').addEventListener('click',async function(){
+  var msg=document.getElementById('settings-msg'); msg.textContent='运行中…';
+  try{ var d=await (await fetch('/api/admin/run-once',{method:'POST'})).json(); if(d.ok){ msg.style.color='var(--up)'; msg.textContent='✅ 本次：抓取 '+d.fetched+' / 发布 '+d.published+' / 跳过 '+d.skipped; refreshLog(); } else { msg.style.color='var(--down)'; msg.textContent='❌ '+d.msg; } }catch(e){ msg.style.color='var(--down)'; msg.textContent='❌ 网络错误'; }
+});
+async function refreshLog(){ try{ var d=await (await fetch('/api/admin/automation-log')).json(); document.getElementById('auto-log').textContent=(d.log||[]).join('\n')||'(暂无日志)'; }catch(e){} }
+document.getElementById('refresh-log').addEventListener('click',refreshLog);
+loadSettings();
+</script>
+<%- include('../partials/footer') %>

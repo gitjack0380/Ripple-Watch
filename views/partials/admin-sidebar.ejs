@@ -1,0 +1,28 @@
+<style>
+  .admin-shell{display:flex;gap:0;max-width:1200px;margin:22px auto;align-items:flex-start}
+  .admin-side{flex:0 0 200px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:18px}
+  .admin-side .brand{font-weight:700;font-size:15px;padding:6px 10px 12px;color:var(--ink)}
+  .admin-side a{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:600}
+  .admin-side a:hover{background:var(--bg)}
+  .admin-side a.active{background:var(--brand);color:#fff}
+  .admin-side a.site{margin-top:auto;border-top:1px solid var(--line);padding-top:12px;color:var(--muted)}
+  .admin-main{flex:1;min-width:0;margin-left:18px}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}
+  .stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+  .stat-card .n{font-size:30px;font-weight:800;color:var(--brand)}
+  .stat-card .l{font-size:13px;color:var(--muted);margin-top:4px}
+  .admin-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .admin-table th,.admin-table td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left}
+  .admin-table th{background:var(--bg);color:var(--muted);font-weight:600;white-space:nowrap}
+  .admin-table tr:last-child td{border-bottom:0}
+  @media(max-width:720px){.admin-shell{flex-direction:column}.admin-side{position:static;flex:none;width:auto;flex-direction:row;flex-wrap:wrap}.admin-main{margin-left:0;margin-top:14px}}
+</style>
+<aside class="admin-side">
+  <div class="brand">⚙️ 管理后台</div>
+  <a class="<%= page==='dashboard'?'active':'' %>" href="/admin">📊 数据概览</a>
+  <a class="<%= page==='articles'?'active':'' %>" href="/admin/articles">📝 内容发布</a>
+  <a class="<%= page==='automation'?'active':'' %>" href="/admin/automation">🤖 自动化</a>
+  <a class="<%= page==='users'?'active':'' %>" href="/admin/users">👥 用户 & 登录</a>
+  <a class="<%= page==='compliance'?'active':'' %>" href="/admin/compliance">📄 合规页</a>
+  <a class="site" href="/">↩ 返回站点</a>
+</aside>

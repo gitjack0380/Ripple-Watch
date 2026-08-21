@@ -1,0 +1,10 @@
+<%- include('partials/head', {title: title + ' · 涟漪观察'}) %>
+<%- include('partials/header') %>
+<div class="container" style="max-width:760px;padding:28px 16px">
+  <h1 style="font-size:24px;margin:0 0 18px"><%= title %></h1>
+  <div class="prose" style="line-height:1.8;color:var(--ink)">
+    <%- html %>
+  </div>
+  <p style="margin-top:28px;color:var(--muted);font-size:13px">© 2026 <%= siteName %> · <a href="/">返回首页</a></p>
+</div>
+<%- include('partials/footer') %>

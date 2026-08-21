@@ -1,0 +1,85 @@
+<%- include('partials/head', {title:'会员订阅'}) %>
+<%- include('partials/header') %>
+
+<div class="container">
+  <% if (cfg.paymentMode === 'external') { %>
+  <div class="note">💡 会员由第三方平台（<%= (cfg.paymentExternal && cfg.paymentExternal.provider === 'youzan') ? '有赞' : '小鹅通' %>）收款并发送权益。点击"开通"将跳转至店铺购买，支付成功后自动跳回本站激活会员。</div>
+  <% } else { %>
+  <div class="note">🔧 完整产品：点击"开通"将真实调用后端下单接口；测试模式下自动模拟支付成功并成为会员。</div>
+  <% } %>
+
+  <div style="text-align:center;margin:36px 0 8px">
+    <h1 class="serif" style="font-size:30px">用一杯咖啡的钱，看懂世界对你的影响</h1>
+    <p style="color:var(--muted);margin-top:10px">会员解锁全部深度解读 · 影响指数档案 · 无广告阅读</p>
+  </div>
+
+  <div class="pricing">
+    <div class="plan">
+      <h3>免费访客</h3>
+      <div class="price">¥0</div>
+      <div class="desc">先看看再说</div>
+      <ul>
+        <li><span class="ck">✓</span> 每日 <%= cfg.freeDailyLimit %> 篇免费解读</li>
+        <li><span class="ck">✓</span> 基础影响标签</li>
+        <li class="off"><span>✕</span> 深度逐行业影响清单</li>
+        <li class="off"><span>✕</span> 影响指数档案</li>
+        <li class="off"><span>✕</span> 无广告阅读</li>
+      </ul>
+      <a href="/login" class="btn btn-ghost btn-block">注册免费读</a>
+    </div>
+
+    <div class="plan featured">
+      <span class="badge">最受欢迎</span>
+      <h3>会员月卡</h3>
+      <div class="price">¥<%= plans.month.price %><span> /月</span></div>
+      <div class="desc"><%= plans.month.desc %></div>
+      <ul>
+        <li><span class="ck">✓</span> 无限阅读全部深度解读</li>
+        <li><span class="ck">✓</span> 逐行业影响清单 + 操作表</li>
+        <li><span class="ck">✓</span> 影响指数档案</li>
+        <li><span class="ck">✓</span> 无广告阅读</li>
+        <li><span class="ck">✓</span> 每周影响周报</li>
+      </ul>
+      <button class="btn btn-primary btn-block" data-action="subscribe" data-plan="month"><%= cfg.paymentMode === 'external' ? '去' + ((cfg.paymentExternal && cfg.paymentExternal.provider === 'youzan') ? '有赞' : '小鹅通') + '开通月卡' : '开通月卡' %></button>
+    </div>
+
+    <div class="plan">
+      <h3>会员年卡</h3>
+      <div class="price">¥<%= plans.year.price %><span> /年</span></div>
+      <div class="desc"><%= plans.year.desc %></div>
+      <ul>
+        <li><span class="ck">✓</span> 含月卡全部权益</li>
+        <li><span class="ck">✓</span> 省 ¥<%= plans.month.price*12 - plans.year.price %>（相比月卡×12）</li>
+        <li><span class="ck">✓</span> 专属会员社群</li>
+        <li><span class="ck">✓</span> 年度影响年鉴</li>
+        <li><span class="ck">✓</span> 优先选题投票</li>
+      </ul>
+      <button class="btn btn-ghost btn-block" data-action="subscribe" data-plan="year"><%= cfg.paymentMode === 'external' ? '去' + ((cfg.paymentExternal && cfg.paymentExternal.provider === 'youzan') ? '有赞' : '小鹅通') + '开通年卡' : '开通年卡' %></button>
+    </div>
+  </div>
+
+  <% if (cfg.paymentMode === 'external') { %>
+  <p style="text-align:center;color:var(--muted);margin-top:6px">已在小鹅通完成购买但没自动跳回？<a href="/member/return">点此激活会员</a>（演示环境可直接激活）</p>
+  <% } %>
+
+  <h2 style="text-align:center;margin:20px 0">权益对比</h2>
+  <table class="compare">
+    <thead><tr><th>权益</th><th>免费</th><th>会员</th></tr></thead>
+    <tbody>
+      <tr><td>每日免费解读</td><td class="yes"><%= cfg.freeDailyLimit %> 篇</td><td class="yes">无限</td></tr>
+      <tr><td>逐行业影响清单</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>影响指数档案</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>无广告阅读</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>每周影响周报</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>会员社群</td><td class="no">—</td><td class="yes">✓（年卡）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="unlock-box" style="margin:30px auto;max-width:760px">
+    <h3>企业 / 机构内参合作</h3>
+    <p>提供定制版"全球大事影响简报"，适配投研、合规、品牌公关团队。</p>
+    <button class="btn btn-ghost" data-action="ad">咨询企业版</button>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

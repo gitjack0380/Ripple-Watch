@@ -1,0 +1,36 @@
+<%- include('../partials/head', {title:'数据概览 · 管理后台'}) %>
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', {page:'dashboard'}) %>
+  <main class="admin-main">
+    <div class="container">
+      <h2 style="margin:0 0 4px">数据概览</h2>
+      <p class="hint" style="color:var(--muted);margin:0 0 12px">当前模型：<b><%= activeProvider %></b> · 共 <%= totalUsers %> 注册用户 · <%= totalArticles %> 篇文章</p>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="n"><%= stats.today.pv %></div><div class="l">今日 PV（页面浏览）</div></div>
+        <div class="stat-card"><div class="n"><%= stats.today.uv %></div><div class="l">今日 UV（独立访客）</div></div>
+        <div class="stat-card"><div class="n"><%= stats.today.dau %></div><div class="l">今日日活（登录用户）</div></div>
+        <div class="stat-card"><div class="n"><%= stats.today.logins %></div><div class="l">今日登录次数</div></div>
+        <div class="stat-card"><div class="n"><%= stats.week.wau %></div><div class="l">近 7 日周活 WAU</div></div>
+        <div class="stat-card"><div class="n"><%= stats.week.pv %></div><div class="l">近 7 日 PV</div></div>
+      </div>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff">
+        <h3 style="margin:0 0 10px">最近登录日志</h3>
+        <div style="overflow:auto">
+          <table class="admin-table">
+            <thead><tr><th>时间</th><th>账号</th><th>IP</th></tr></thead>
+            <tbody>
+              <% (stats.recentLogins||[]).forEach(function(l){ %>
+                <tr><td><%= (l.time||'').replace('T',' ').slice(0,19) %></td><td><%= l.account %></td><td><%= l.ip %></td></tr>
+              <% }); %>
+              <% if(!stats.recentLogins || !stats.recentLogins.length){ %><tr><td colspan="3" style="color:var(--muted)">暂无登录记录</td></tr><% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<%- include('../partials/footer') %>

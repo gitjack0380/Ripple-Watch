@@ -1,0 +1,42 @@
+<%- include('../partials/head', {title:'合规页 · 管理后台'}) %>
+<%- include('../partials/header') %>
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', {page:'compliance'}) %>
+  <main class="admin-main">
+    <div class="container">
+      <h2 style="margin:0 0 4px">合规页管理</h2>
+      <p class="hint" style="color:var(--muted);margin:0 0 12px">以下页面在站点页脚展示：<a href="/privacy" target="_blank">隐私政策</a> · <a href="/terms" target="_blank">用户协议</a> · <a href="/ad-disclosure" target="_blank">广告与标识</a>。直接编辑保存即可生效。</p>
+
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff">
+        <h3>隐私政策</h3>
+        <textarea id="privacy" rows="6" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"><%= (compliance.privacyHtml||'') %></textarea>
+      </div>
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;margin-top:16px">
+        <h3>用户协议</h3>
+        <textarea id="terms" rows="6" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"><%= (compliance.termsHtml||'') %></textarea>
+      </div>
+      <div class="card" style="border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;margin-top:16px">
+        <h3>广告与标识</h3>
+        <textarea id="ad" rows="6" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px"><%= (compliance.adHtml||'') %></textarea>
+      </div>
+
+      <div style="margin:16px 0">
+        <button class="btn btn-primary" id="save">保存合规页</button>
+        <span id="msg" style="font-size:13px;margin-left:10px"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.getElementById('save').addEventListener('click',async function(){
+  var msg=document.getElementById('msg'); msg.textContent='保存中…';
+  var payload={ privacyHtml:document.getElementById('privacy').value, termsHtml:document.getElementById('terms').value, adHtml:document.getElementById('ad').value };
+  try{
+    var d=await (await fetch('/api/admin/compliance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).json();
+    if(d.ok){ msg.style.color='var(--up)'; msg.textContent='✅ 已保存'; }
+    else { msg.style.color='var(--down)'; msg.textContent='❌ '+d.msg; }
+  }catch(e){ msg.style.color='var(--down)'; msg.textContent='❌ 网络错误'; }
+});
+</script>
+<%- include('../partials/footer') %>

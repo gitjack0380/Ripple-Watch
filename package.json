@@ -1,0 +1,18 @@
+{
+  "name": "ripple-watch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "涟漪观察 Ripple Watch — 全球大事普通人视角，会员订阅 + 广告变现",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/selftest.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ejs": "^3.1.10",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0"
+  }
+}
